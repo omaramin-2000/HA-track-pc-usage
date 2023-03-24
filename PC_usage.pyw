@@ -1,15 +1,16 @@
+# This code should run on windows to track pc usage and send data to home assistant using MQTT client
+
 import paho.mqtt.client as mqtt
-import platform
 import win32api
 import win32gui
 import win32con
 import time
 
 # MQTT broker settings
-broker_address = "192.168.1.115"
-broker_port = 1883
-broker_username = "Omar Amin"
-broker_password = "myserver"
+broker_address = "YOUR_IP_ADDRESS"
+broker_port = "YOUR_BROKER_PORT
+broker_username = "YOUR_BROKER_USERNAME"
+broker_password = "YOUR_BROKER_PASSWORD"
 
 # Create MQTT client
 client = mqtt.Client()

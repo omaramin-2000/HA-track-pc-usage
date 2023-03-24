@@ -1,0 +1,6 @@
+# Add this yaml code to the configuration file so it creates the "PC_Usage" senosr
+
+mqtt:     
+  sensor:
+    - name: "PC Usage"
+      state_topic: "pc_state"

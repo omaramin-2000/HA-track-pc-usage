@@ -8,7 +8,7 @@ import time
 
 # MQTT broker settings
 broker_address = "YOUR_IP_ADDRESS"
-broker_port = "YOUR_BROKER_PORT
+broker_port = "YOUR_BROKER_PORT"
 broker_username = "YOUR_BROKER_USERNAME"
 broker_password = "YOUR_BROKER_PASSWORD"
 

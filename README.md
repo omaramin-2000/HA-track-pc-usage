@@ -3,5 +3,5 @@ Track your PC usage in Home Assistant using python MQTT whether it's active, idl
 
 ## Requirements:
 
-- Python 3 or above on Windows
+- Python 3 or above on Windows or Linux
 - MQTT broker add-on and the [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) must be set up in Home Assistant

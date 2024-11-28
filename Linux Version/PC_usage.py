@@ -1,12 +1,16 @@
 import paho.mqtt.client as mqtt
 import time
 import subprocess
+import dbus
+import dbus.mainloop.glib
+from gi.repository import GLib
+import threading
 
 # MQTT broker settings
-broker_address = "YOUR_IP_ADDRESS"
-broker_port = "YOUR_BROKER_PORT"
-broker_username = "YOUR_BROKER_USERNAME"
-broker_password = "YOUR_BROKER_PASSWORD"
+broker_address = "192.168.1.109"
+broker_port = 1883  # Use an integer, not a string
+broker_username = "Omar Amin"
+broker_password = "myserver"
 
 # Create MQTT client
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -58,24 +62,54 @@ def get_idle_time():
         print(f"Error fetching idle time: {e}")
         return None
 
-pc_state = "active"
+def session_change_handler(*args):
+    if args[0] == 'session-logout':
+        print("User logged off")
+        client.publish("status", "offline")
 
-# Main loop
-while True:
-    idle_time = get_idle_time()
+def check_pc_state():
+    global pc_state
+    while True:
+        idle_time = get_idle_time()
 
-    if idle_time is not None:
-        # Determine PC state based on idle time
-        if idle_time >= idle_threshold:
-            pc_state = "idle"
-        else:
-            pc_state = "active"
+        if idle_time is not None:
+            # Determine PC state based on idle time
+            if idle_time >= idle_threshold:
+                pc_state = "idle"
+            else:
+                pc_state = "active"
 
-        # Publish payload to MQTT broker
-        client.publish("status", pc_state)
+            # Publish payload to MQTT broker
+            client.publish("status", pc_state)
 
-        # Print state for debugging
-        print(pc_state)
+            # Print state for debugging
+            print(pc_state)
 
-    # Sleep for 1 second before checking again to prevent high CPU usage
-    time.sleep(1)
+        time.sleep(1)  # Check every second
+
+def main():
+    global pc_state
+
+    # Initialize D-Bus and listen for session change signals
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
+
+    # Connect to the session manager's signals
+    bus.add_signal_receiver(session_change_handler,
+                            dbus_interface='org.gnome.SessionManager',
+                            signal_name='SessionChange')
+
+    pc_state = "active"
+
+    # Start the MQTT client loop in a separate thread
+    client.loop_start()
+
+    # Start the PC state checker in a separate thread
+    pc_state_thread = threading.Thread(target=check_pc_state)
+    pc_state_thread.daemon = True
+    pc_state_thread.start()
+
+    # Start the GLib main loop
+    GLib.MainLoop().run()
+if __name__ == "__main__":
+    main()
